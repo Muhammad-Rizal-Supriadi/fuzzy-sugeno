@@ -15,15 +15,15 @@ use Illuminate\Http\Request;
 
 class FuzzySugenoController extends Controller
 {
-    private $rangeTinggi;
-    private $statusTinggi;
-    private $statusBerat;
-    private $rangeBerat;
+    private $hightRange;
+    private $hightStatus;
+    private $weightRange;
+    private $weightStatus;
     private $rules;
-    private $degreeStatusTinggi=array();
-    private $degreeTinggi=array();
-    private $degreeStatusBerat=array();
-    private $degreeBerat=array();
+    private $hightStatusDegree=array();
+    private $hightDegree=array();
+    private $weightStatusDegree=array();
+    private $weightDegree=array();
     private $fuzzyValue=array();
     private $fuzzyStatus=array();
     private $maxValue=0;
@@ -34,10 +34,10 @@ class FuzzySugenoController extends Controller
 
     public function __construct()
     {
-        $this->rangeTinggi=[0, 115, 120, 140, 145, 160, 165, 180, 185, 200];
-        $this->statusTinggi=["Sangat Pendek", "Pendek", "Sedang", "Tinggi", "Sangat Tinggi"];
-        $this->rangeBerat=[0, 40, 45, 50, 55, 60, 65, 80, 85, 100];
-        $this->statusBerat=["Sangat Kurus", "Kurus", "Biasa", "Berat", "Sangat Berat"];
+        $this->hightRange=[0, 115, 120, 140, 145, 160, 165, 180, 185, 200];
+        $this->hightStatus=["Sangat Pendek", "Pendek", "Sedang", "Tinggi", "Sangat Tinggi"];
+        $this->weightRange=[0, 40, 45, 50, 55, 60, 65, 80, 85, 100];
+        $this->weightStatus=["Sangat Kurus", "Kurus", "Biasa", "Berat", "Sangat Berat"];
         $this->rules=[
             ["Sangat Sehat","Sehat","Agak Sehat","Tidak Sehat","Tidak Sehat"],
             ["Sehat","Sangat Sehat", "Sehat","Agak Sehat","Tidak Sehat"],
@@ -64,22 +64,23 @@ class FuzzySugenoController extends Controller
     }
 
 
-    public function proses(Request $request){
+    public function process(Request $request){
+        $x=0;
+        $value = 0;
+        $hight=floatval($request->hight);
+        $weight=floatval($request->weight);
+        $hightData=$this->hightRange;
+        $hightStatus=$this->hightStatus;
+        $weightData=$this->weightRange;
+        $weightStatus=$this->weightStatus;
 
-        $tinggi=floatval($request->tinggi);
-        $berat=floatval($request->berat);
-        $dataTinggi=$this->rangeTinggi;
-        $statusTinggi=$this->statusTinggi;
-        $dataBerat=$this->rangeBerat;
-        $statusBerat=$this->statusBerat;
-
-        for($i=0;$i<count($dataTinggi);$i++){
-            if($tinggi>=floatval($dataTinggi[$i])){
+        for($i=0;$i<count($hightData);$i++){
+            if($hight>=floatval($hightData[$i])){
                 try{
-                    $this->degreeStatusTinggi[0]=$statusTinggi[$i/2];
-                    $this->degreeStatusTinggi[1]=$statusTinggi[$i/2+1];
-                    $this->degreeTinggi[0]=($dataTinggi[$i+1]-$tinggi)/($dataTinggi[$i+1]-$dataTinggi[$i]);
-                    $this->degreeTinggi[1]=($tinggi-$dataTinggi[$i])/($dataTinggi[$i+1]-$dataTinggi[$i]);
+                    $this->hightStatusDegree[0]=$hightStatus[$i/2];
+                    $this->hightStatusDegree[1]=$hightStatus[$i/2+1];
+                    $this->hightDegree[0]=($hightData[$i+1]-$hight)/($hightData[$i+1]-$hightData[$i]);
+                    $this->hightDegree[1]=($hight-$hightData[$i])/($hightData[$i+1]-$hightData[$i]);
                 }catch (\Exception $e){
                     return "<div class='alert alert-danger'>Terjadi kesalahan! Tinggi melebihi range</div>";
                 }
@@ -87,13 +88,13 @@ class FuzzySugenoController extends Controller
             }
         }
 
-        for($i=0;$i<count($dataBerat);$i++){
-            if($berat>=floatval($dataBerat[$i])){
+        for($i=0;$i<count($weightData);$i++){
+            if($weight>=floatval($weightData[$i])){
                 try{
-                    $this->degreeStatusBerat[0]=$statusBerat[$i/2];
-                    $this->degreeStatusBerat[1]=$statusBerat[$i/2+1];
-                    $this->degreeBerat[0]=($dataBerat[$i+1]-$berat)/($dataBerat[$i+1]-$dataBerat[$i]);
-                    $this->degreeBerat[1]=($berat-$dataBerat[$i])/($dataBerat[$i+1]-$dataBerat[$i]);
+                    $this->weightStatusDegree[0]=$weightStatus[$i/2];
+                    $this->weightStatusDegree[1]=$weightStatus[$i/2+1];
+                    $this->weightDegree[0]=($weightData[$i+1]-$weight)/($weightData[$i+1]-$weightData[$i]);
+                    $this->weightDegree[1]=($weight-$weightData[$i])/($weightData[$i+1]-$weightData[$i]);
                 }catch (\Exception $e){
                     return "<div class='alert alert-danger'>Terjadi kesalahan! Berat melebihi range</div>";
                 }
@@ -101,30 +102,60 @@ class FuzzySugenoController extends Controller
             }
         }
 
-        echo "<div class='alert alert-success'>".
-                $this->deFuzzificate();
-                $this->findMethod();
-                $this->findSugenoMethod();
-                $this->showFuzzyValue();"</div>";
-
-
-    }
-
-    private function deFuzzificate(){
-        $x=0;
-        for ($i=0;$i<count($this->degreeTinggi);$i++){
-            for($j=0;$j<count($this->degreeBerat);$j++){
-                if($this->degreeTinggi[$i]< $this->degreeBerat[$j]){
-                    $this->fuzzyValue[$x]=$this->degreeTinggi[$i];
+        //defuzzyficate
+        for ($i=0;$i<count($this->hightDegree);$i++){
+            for($j=0;$j<count($this->weightDegree);$j++){
+                if($this->hightDegree[$i]< $this->weightDegree[$j]){
+                    $this->fuzzyValue[$x]=$this->hightDegree[$i];
                 }else{
-                    $this->fuzzyValue[$x]=$this->degreeBerat[$j];
+                    $this->fuzzyValue[$x]=$this->weightDegree[$j];
                 }
-                $this->fuzzyStatus[$x]=$this->rules[$this->converToString($this->statusTinggi,$this->degreeStatusTinggi[$i])]
-                [$this->converToString($this->statusBerat,$this->degreeStatusBerat[$j])];
+                $this->fuzzyStatus[$x]=$this->rules[$this->converToString($this->hightStatus,$this->hightStatusDegree[$i])]
+                [$this->converToString($this->weightStatus,$this->weightStatusDegree[$j])];
                 $x++;
             }
         }
+
+        //find method
+        $paramsFindMethod=[];
+        for ($i = 0; $i <count($this->fuzzyValue); $i++) {
+            if ($this->fuzzyValue[$i] > $this->maxValue) {
+                $this->maxValue    = $this->fuzzyValue[$i];
+                $this->maxStatus   = $this->fuzzyStatus[$i];
+            }
+            $paramsFindMethod[]=[
+                'fuzzy_status'=>$this->fuzzyStatus[$i],
+                'fuzzy_value'=>$this->fuzzyValue[$i]
+            ];
+        }
+
+        //findSugenoMethod
+        $paramsSugenoMethod=[];
+        for ($i = 0; $i <count($this->fuzzyValue); $i++) {
+            $this->cripsIndex += $this->fuzzyValue[$i] * $this->sugenoValue[$this->fuzzyStatus[$i]];
+            $paramsSugenoMethod[]=[
+                'fuzzy_value'=>$this->fuzzyValue[$i],
+                'sugeno_value'=>$this->sugenoValue[$this->fuzzyStatus[$i]]
+            ];
+            $value += $this->fuzzyValue[$i];
+        }
+
+        $paramsResult=[
+            'max_status'=>$this->maxStatus,
+            'max_value'=>$this->maxValue
+        ];
+
+        $params=[
+            'findMethod'=>$paramsFindMethod,
+            'findSugenoMethod'=>$paramsSugenoMethod,
+            'cripsIndex'=> $this->cripsIndex /= $value,
+            'result'=>$paramsResult
+
+        ];
+
+        return view('backend.fuzzy.result',$params);
     }
+
 
     private function converToString($string,$item){
         for ($i = 0;$i < count($string); $i++) {
@@ -134,38 +165,6 @@ class FuzzySugenoController extends Controller
 
     }
 
-    private function findMethod(){
-        echo "<p>Fuzzy Value:</p>";
-        for ($i = 0; $i <count($this->fuzzyValue); $i++) {
-            if ($this->fuzzyValue[$i] > $this->maxValue) {
-                $this->maxValue    = $this->fuzzyValue[$i];
-                $this->maxStatus   = $this->fuzzyStatus[$i];
-            }
-
-            echo "<p>".$this->fuzzyStatus[$i] .":". $this->fuzzyValue[$i]."</p>";
-
-        }
-        echo "</br>";
-    }
-
-    private function findSugenoMethod(){
-        echo "<p>Centroid Method:</p>";
-        $f = 0;
-        for ($i = 0; $i <count($this->fuzzyValue); $i++) {
-            $this->cripsIndex += $this->fuzzyValue[$i] * $this->sugenoValue[$this->fuzzyStatus[$i]];
-            echo "<p>Item :".$this->fuzzyValue[$i]."x".$this->sugenoValue[$this->fuzzyStatus[$i]]."</p>";
-            $f += $this->fuzzyValue[$i];
-        }
-        $this->cripsIndex /= $f;
-        echo "Crips Index :".$this->cripsIndex;
-        echo "</br></br>";
-    }
-
-    private function showFuzzyValue(){
-        echo "<p>Result :</p>";
-        echo "<p>Status    :".$this->maxStatus."</p>";
-        echo "<p>Value     :".$this->maxValue."</p>";
-    }
 
 
 }

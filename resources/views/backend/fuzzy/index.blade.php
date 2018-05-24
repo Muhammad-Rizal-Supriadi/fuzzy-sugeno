@@ -54,12 +54,12 @@
                                             <tr>
                                                 <td width="15%">Tinggi </td>
                                                 <td width="5%">:</td>
-                                                <td><input type="text" name="tinggi" required=""></td>
+                                                <td><input type="text" name="hight" required=""></td>
                                             </tr>
                                             <tr>
                                                 <td width="15%">Berat </td>
                                                 <td width="5%">:</td>
-                                                <td><input type="text" name="berat" required=""></td>
+                                                <td><input type="text" name="weight" required=""></td>
                                             </tr>
 
                                             <tr>
