@@ -76,10 +76,7 @@
 
                                     </form>
                                     <br><br>
-                                    <div class='alert alert-success'>
                                         <div id="result"></div>
-                                    </div>
-
                                     <br><br>
 
 
