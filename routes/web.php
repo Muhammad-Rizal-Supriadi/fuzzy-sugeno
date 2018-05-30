@@ -15,7 +15,7 @@ Route::get('/', 'Backend\BackendController@index')->middleware('verify-login');
 Route::get('login', 'LoginController@index');
 Route::get('logout', 'LoginController@logout');
 Route::post('validate-login', 'LoginController@login');
-Route::group(['prefix' => 'backend', 'namespace' => 'Backend','middleware' => 'verify-login'], function () {
+Route::group(['prefix' => 'backend', 'namespace' => 'Backend', 'middleware' => 'verify-login'], function () {
     Route::get('/', 'BackendController@index');
 //    Route::group(['prefix' => 'master', 'namespace' => 'Master','middleware' => 'verify-login'],function (){
 //
@@ -79,9 +79,8 @@ Route::group(['prefix' => 'backend', 'namespace' => 'Backend','middleware' => 'v
 //
 //    });
 
-    Route::group(['prefix' => 'fuzzy', 'namespace' => 'Fuzzy','middleware' => 'verify-login'],function (){
-            Route::get('/', 'FuzzySugenoController@index');
-            Route::post('/proses', 'FuzzyController@process');
+    Route::group(['prefix' => 'fuzzy', 'namespace' => 'Fuzzy', 'middleware' => 'verify-login'], function () {
+        Route::get('/', 'FuzzyController@index');
+        Route::post('/proses', 'FuzzyController@process');
     });
-
 });
