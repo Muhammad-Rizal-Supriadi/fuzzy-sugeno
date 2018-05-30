@@ -136,7 +136,7 @@ class Fuzzy
     public function checkExactValue($i, $j)
     {
         if (($this->hight->getXStatusIndex() == $i && ($this->weight->getXStatusIndex() == $j))) {
-            $this->fuzzyOne = $this->rules[2][0];
+            $this->fuzzyOne = $this->rules[$i][$j];
         }
 
         return $this->fuzzyOne;
