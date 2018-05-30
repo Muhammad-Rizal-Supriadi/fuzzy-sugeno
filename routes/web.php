@@ -81,7 +81,7 @@ Route::group(['prefix' => 'backend', 'namespace' => 'Backend','middleware' => 'v
 
     Route::group(['prefix' => 'fuzzy', 'namespace' => 'Fuzzy','middleware' => 'verify-login'],function (){
             Route::get('/', 'FuzzySugenoController@index');
-            Route::post('/proses', 'FuzzySugenoController@process');
+            Route::post('/proses', 'FuzzyController@process');
     });
 
 });
